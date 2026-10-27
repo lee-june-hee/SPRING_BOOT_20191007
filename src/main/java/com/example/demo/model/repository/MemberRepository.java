@@ -1,5 +1,6 @@
 package com.example.demo.model.repository;
 
+import java.util.List;  // 7주차 연습문제
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -12,4 +13,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // 아이디 중복 확인 (존재하면 true)
     boolean existsByUsername(String username);
+    
+    // 7주차 연습문제 코드 추가 시작 (아이디 또는 이름으로 검색)
+    List<Member> findByUsernameContainingOrNameContaining(String username, String name);
+    // 7주차 연습문제 코드 추가 끝
 }

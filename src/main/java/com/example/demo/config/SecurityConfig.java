@@ -10,9 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 @Configuration // 스프링 설정 클래스 등록
 @EnableWebSecurity // 스프링 시큐리티 활성화
@@ -31,6 +29,10 @@ public class SecurityConfig {
                                 "/login", "/signup", "/error")
                         .permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
+
+                        // 6주차 연습문제 코드 수정 (MANAGER 권한 추가)
+                        .requestMatchers("/testdb").hasAnyRole("ADMIN", "MANAGER")
+                        
                         // .requestMatchers("/admin/**").hasRole("ADMIN") // [6주차] 관리자만
                         .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN") // 7주차에 수정
                         .requestMatchers("/api/hello").permitAll() // 7주차에 추가
@@ -45,6 +47,12 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login?logout") // 로그아웃 후 이동
                         .invalidateHttpSession(true) // 세션 삭제
                         .deleteCookies("JSESSIONID", "remember-me")) // 쿠키 삭제(갱신됨)
+                
+                // 5주차 연습문제 코드 추가 시작 (로그인 상태 유지)
+                .rememberMe(remember -> remember
+                        .key("비밀키")
+                        .tokenValiditySeconds(604800)) // 7일 (7 * 24 * 60 * 60)
+                // 5주차 연습문제 코드 추가 끝
                 
                 // 5. [7주차] REST API 설정
                 .httpBasic(Customizer.withDefaults()) // Postman : 요청마다 아이디·비밀번호 (Basic 인증)

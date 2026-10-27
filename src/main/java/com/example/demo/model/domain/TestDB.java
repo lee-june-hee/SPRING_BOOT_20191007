@@ -10,6 +10,15 @@ public class TestDB {
     @Id // 해당 변수가 PK
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 값이 없어도 자동으로 할당
     private Long id;
+
     @Column(nullable = true) // 테이블의 컬럼 설정 값을 명시
     private String name;
+
+    // 4주차 연습문제 코드 추가 (나이 컬럼)
+    @Column(nullable = true)
+    private Integer age;
+
+    // 4주차 연습문제 코드 추가 (성별 컬럼)
+    @Column(nullable = true, length = 10)
+    private String gender;
 }

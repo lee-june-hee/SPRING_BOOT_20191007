@@ -110,8 +110,10 @@ https://templatemo.com/tm-578-first-portfolio
                             <a class="nav-link click-scroll" href="#section_5">연락처</a>
                         </li>
 
-                        <!-- [5주차] 회원 전용 페이지 : 로그인하지 않으면 로그인 화면으로 이동 -->
-                        <li class="nav-item">
+                        <!-- [5주차] 회원 전용 페이지 : 로그인하지 않으면 로그인 화면으로 이동
+                        <li class="nav-item"> -->
+                        <!-- 6주차 연습문제 코드 수정 (회원목록 메뉴 USER 숨기기) -->
+                        <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
                             <a class="nav-link" th:href="@{/testdb}">회원목록</a>
                         </li>
 
@@ -355,7 +357,7 @@ https://templatemo.com/tm-578-first-portfolio
                                 <div class="col-lg-6 col-12">
                                     <div class="services-thumb services-thumb-up">
                                         <div class="d-flex flex-wrap align-items-center border-bottom mb-4 pb-3">
-                                            <h3 class="mb-0">(AI)인공지능</h3>
+                                            <h3 class="mb-0">인공지능 - AI</h3>
 
                                             <div class="services-price-wrap ms-auto">
                                                 <p class="services-price-text mb-0">$1,200</p>
@@ -376,7 +378,7 @@ https://templatemo.com/tm-578-first-portfolio
                                 <div class="col-lg-6 col-12">
                                     <div class="services-thumb">
                                         <div class="d-flex flex-wrap align-items-center border-bottom mb-4 pb-3">
-                                            <h3 class="mb-0">(보안)Security</h3>
+                                            <h3 class="mb-0">책 - Book</h3>
 
                                             <div class="services-price-wrap ms-auto">
                                                 <p class="services-price-text mb-0">$3,600</p>
@@ -389,7 +391,7 @@ https://templatemo.com/tm-578-first-portfolio
                                         <a href="#" class="custom-btn custom-border-btn btn mt-3">Discover More</a>
 
                                         <div class="services-icon-wrap d-flex justify-content-center align-items-center">
-                                            <i class="services-icon bi-phone"></i>
+                                            <i class="services-icon bi-book"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -397,7 +399,7 @@ https://templatemo.com/tm-578-first-portfolio
                                 <div class="col-lg-6 col-12">
                                     <div class="services-thumb services-thumb-up">
                                         <div class="d-flex flex-wrap align-items-center border-bottom mb-4 pb-3">
-                                            <h3 class="mb-0">(게임)GAME</h3>
+                                            <h3 class="mb-0">게임 - Game</h3>
 
                                             <div class="services-price-wrap ms-auto">
                                                 <p class="services-price-text mb-0">$1,450</p>
@@ -410,7 +412,7 @@ https://templatemo.com/tm-578-first-portfolio
                                         <a href="#" class="custom-btn custom-border-btn btn mt-3">Discover More</a>
 
                                         <div class="services-icon-wrap d-flex justify-content-center align-items-center">
-                                            <i class="services-icon bi-google"></i>
+                                            <i class="services-icon bi-controller"></i>
                                         </div>
                                     </div>
                                 </div>
