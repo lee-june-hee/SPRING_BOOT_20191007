@@ -32,11 +32,13 @@ public class SecurityConfig {
 
                         // 6주차 연습문제 코드 수정 (MANAGER 권한 추가)
                         .requestMatchers("/testdb").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/board", "/board/{id:\\d+}").permitAll() // 게시판 목록·상세 : 누구나
                         
                         // .requestMatchers("/admin/**").hasRole("ADMIN") // [6주차] 관리자만
                         .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN") // 7주차에 수정
                         .requestMatchers("/api/hello").permitAll() // 7주차에 추가
                         .anyRequest().authenticated())
+                        
                 .formLogin(form -> form // 2. 폼 로그인 설정 (인증)
                         .loginPage("/login")
                         .defaultSuccessUrl("/")
