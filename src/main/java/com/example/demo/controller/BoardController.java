@@ -24,6 +24,15 @@ public class BoardController {
         return "board/list";
     }
 
+    // 9주차 연습문제 추가: 내가 쓴 글 모아보기 (GET /board/my, 로그인 필요)
+    @GetMapping("/my")
+    public String myPosts(Principal principal, Model model) {
+        List<Post> posts = postService.findByAuthor(principal.getName());
+        model.addAttribute("posts", posts);
+        model.addAttribute("listTitle", "내가 쓴 글"); // 목록 화면 재사용 및 제목 변경
+        return "board/list";
+    }
+
     @GetMapping("/write") // 글쓰기 화면 : GET /board/write (로그인 필요)
     public String writeForm() {
         return "board/form";
@@ -39,10 +48,11 @@ public class BoardController {
             return "board/form"; // 입력값 유지한 채 다시 글쓰기 화면
         }
     }
-    
+
+    // 9주차 연습문제 수정: postService.findById -> postService.read (조회수 1 증가)
     @GetMapping("/{id}") // 상세 : GET /board/3 (누구나)
     public String detail(@PathVariable Long id, Model model) {
-        Post post = postService.findById(id);
+        Post post = postService.read(id);
         model.addAttribute("post", post);
         return "board/detail";
     }

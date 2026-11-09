@@ -1,4 +1,5 @@
 package com.example.demo.model.service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,14 +52,26 @@ public class PostService {
 
     public Post findById(Long id) { // 글 1개 (없으면 404 → templates/error/404.html)
         return postRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "글이 존재하지 않습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "글이 존재하지 않습니다."));
+    }
+
+    // 9주차 연습문제 추가: 조회수 1 증가 후 글 반환 (상세 보기용)
+    public Post read(Long id) {
+        Post post = findById(id);
+        post.setViewCount(post.getViewCount() + 1);
+        return postRepository.save(post);
+    }
+
+    // 9주차 연습문제 추가: 특정 작성자가 쓴 글 목록 조회 (최신순)
+    public List<Post> findByAuthor(String username) {
+        return postRepository.findByAuthor_UsernameOrderByIdDesc(username);
     }
 
     public Post findForEdit(Long id) { // 수정 화면에 보여 줄 글 (본인 글만)
         Post post = findById(id);
         checkWriter(post); // ★ 추가
         return post;
-    }   
+    }
 
     public Post edit(Long id, PostForm form) { // 글 수정
         Post post = findForEdit(id);
@@ -71,7 +84,8 @@ public class PostService {
 
     public void delete(Long id) { // 글 삭제 (본인 또는 관리자)
         Post post = findById(id);
-        if (!isAdmin()) checkWriter(post); // ★ 추가 : 관리자는 누구 글이든 삭제 가능
+        if (!isAdmin())
+            checkWriter(post); // ★ 추가 : 관리자는 누구 글이든 삭제 가능
         postRepository.delete(post); // DELETE
     }
 
@@ -86,6 +100,4 @@ public class PostService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
-
-
 }
