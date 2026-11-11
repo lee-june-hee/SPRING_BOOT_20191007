@@ -9,7 +9,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.demo.model.domain.Member;
 import com.example.demo.model.dto.MemberForm;
+import com.example.demo.model.repository.CommentRepository;
 import com.example.demo.model.repository.MemberRepository;
+import com.example.demo.model.repository.PostRepository;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,10 +25,15 @@ public class MemberService implements UserDetailsService {
     @Autowired // SecurityConfig 에 등록한 BCryptPasswordEncoder 주입
     private PasswordEncoder passwordEncoder;
 
+    @Autowired // ① 필드 추가
+    private PostRepository postRepository;
+    @Autowired
+    private CommentRepository commentRepository;
+
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
     } // 클래스 아래쪽
-    // 관리자가 부여할 수 있는 권한 (화면에서 넘어온 값을 그대로 믿지 않는다)
+      // 관리자가 부여할 수 있는 권한 (화면에서 넘어온 값을 그대로 믿지 않는다)
 
     private static final List<String> ROLES = List.of("USER", "MANAGER", "ADMIN"); // 6주차 수정 반영
 
@@ -107,11 +114,15 @@ public class MemberService implements UserDetailsService {
     public void deleteMember(Long id) { // 회원 삭제
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+        if (postRepository.existsByAuthor(member) || commentRepository.existsByAuthor(member)) {
+            throw new IllegalArgumentException("작성한 글이나 댓글이 있는 회원은 삭제할 수 없습니다.");
+        }
 
         // 6주차 연습문제 코드 추가 시작 (관리자 본인 보호)
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         if (member.getUsername().equals(currentUsername)) {
             throw new IllegalArgumentException("자기 자신은 삭제할 수 없습니다.");
+
         }
         // 6주차 연습문제 코드 추가 끝
 
