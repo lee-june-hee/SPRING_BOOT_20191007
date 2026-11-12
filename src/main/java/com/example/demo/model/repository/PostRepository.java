@@ -18,9 +18,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // 9주차 연습문제 추가
     List<Post> findByAuthor_UsernameOrderByIdDesc(String username);
 
+    // [10주차 연습문제 1] 내가 쓴 글 페이징
+    Page<Post> findByAuthor_Username(String username, Pageable pageable);
+
     // [10주차] 단계 2 : 제목 또는 내용에 검색어가 들어간 글 (JPQL)
     @Query("SELECT p FROM Post p WHERE p.title LIKE %:keyword% OR p.content LIKE %:keyword%")
     Page<Post> search(@Param("keyword") String keyword, Pageable pageable);
+
+    // [10주차 연습문제 2] 작성자 이름으로 검색 (JPQL)
+    @Query("SELECT p FROM Post p WHERE p.author.name LIKE %:name%")
+    Page<Post> searchByWriter(@Param("name") String name, Pageable pageable);
 
     boolean existsByAuthor(Member author); // 이 회원이 쓴 글이 있는지
 }

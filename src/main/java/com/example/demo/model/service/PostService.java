@@ -55,13 +55,17 @@ public class PostService {
     public static final int PAGE_SIZE = 10; // 한 페이지에 보여 줄 글 수
     // [10주차] 단계 1 : 페이지 목록 (page 는 0 부터)
 
-    // [10주차] 단계 2 : 페이지 목록 + 검색 (검색어가 없으면 전체)
-    public Page<Post> findPage(String keyword, int page) {
+    // [10주차] 단계 2 + 연습문제 2 : 페이지 목록 + 검색 (제목+내용 / 작성자)
+    public Page<Post> findPage(String type, String keyword, int page) {
         PageRequest pageable = PageRequest.of(Math.max(page, 0), PAGE_SIZE, Sort.by(Sort.Direction.DESC, "id"));
-        if (keyword == null || keyword.isBlank()) { // 앞이 true면 뒤를 실행하지 않음
+        if (keyword == null || keyword.isBlank()) {
             return postRepository.findAll(pageable);
         }
-        return postRepository.search(keyword.trim(), pageable); // 검색 결과도 10개씩
+        String trimmed = keyword.trim();
+        if ("writer".equals(type)) {
+            return postRepository.searchByWriter(trimmed, pageable); // 작성자 이름으로 검색
+        }
+        return postRepository.search(trimmed, pageable); // 기본: 제목 + 내용 검색
     }
 
     public Post findById(Long id) { // 글 1개 (없으면 404 → templates/error/404.html)
@@ -79,6 +83,12 @@ public class PostService {
     // 9주차 연습문제 추가: 특정 작성자가 쓴 글 목록 조회 (최신순)
     public List<Post> findByAuthor(String username) {
         return postRepository.findByAuthor_UsernameOrderByIdDesc(username);
+    }
+
+    // [10주차 연습문제 1] 내가 쓴 글 페이징 (10개씩, 최신순)
+    public Page<Post> findMyPage(String username, int page) {
+        PageRequest pageable = PageRequest.of(Math.max(page, 0), PAGE_SIZE, Sort.by(Sort.Direction.DESC, "id"));
+        return postRepository.findByAuthor_Username(username, pageable);
     }
 
     public Post findForEdit(Long id) { // 수정 화면에 보여 줄 글 (본인 글만)
