@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.model.domain.Member;
 import com.example.demo.model.domain.Post;
 import com.example.demo.model.dto.PostForm;
+import com.example.demo.model.repository.EnrollmentRepository;
 import com.example.demo.model.repository.MemberRepository;
 import com.example.demo.model.repository.PostRepository;
 
@@ -28,6 +29,8 @@ public class PostService {
     private MemberRepository memberRepository;
     @Autowired // [11주차] 단계 2 : 업로드 파일 저장소 (제공 코드)
     private FileStore fileStore;
+    @Autowired // [11주차 연습문제 2] 신청 내역 확인용
+    private EnrollmentRepository enrollmentRepository;
 
     public List<Post> findAll() { // 전체 목록 (최신 글이 위로)
         return postRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
@@ -120,11 +123,17 @@ public class PostService {
         return postRepository.save(post); // id 가 있으니 UPDATE
     }
 
+    // [11주차 연습문제 2] 글 삭제 (신청자 있으면 막기 + 포스터 파일 삭제)
     public void delete(Long id) { // 글 삭제 (본인 또는 관리자)
         Post post = findById(id);
         if (!isAdmin())
             checkWriter(post); // ★ 추가 : 관리자는 누구 글이든 삭제 가능
+        if (enrollmentRepository.existsByPost(post)) {
+            throw new IllegalStateException("신청자가 있는 모집글은 삭제할 수 없습니다.");
+        }
+        String posterFile = post.getPosterFile();
         postRepository.delete(post); // DELETE
+        fileStore.delete(posterFile); // 포스터 파일 함께 삭제
     }
 
     private void checkWriter(Post post) { // 로그인한 사람이 글쓴이인지 → 아니면 403

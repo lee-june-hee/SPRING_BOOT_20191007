@@ -4,8 +4,11 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.model.domain.Enrollment;
 import com.example.demo.model.domain.Member;
@@ -30,7 +33,6 @@ public class EnrollmentService {
 
     // 단계 4 : 바구니의 모집글을 한 번에 신청 확정
     @Transactional // 단계 5 : 하나라도 실패하면 모두 취소 (롤백)
-    // 단계 4 : 바구니의 모집글을 한 번에 신청 확정
     public int confirm(String username, Collection<Long> postIds) {
         if (postIds.isEmpty()) {
             throw new IllegalStateException("바구니가 비어 있습니다.");
@@ -55,5 +57,18 @@ public class EnrollmentService {
             postRepository.save(post); // ② UPDATE 신청 인원 + 1 (남은 자리 - 1)
         }
         return postIds.size();
+    }
+
+    // [11주차 연습문제 1] 신청 취소 (본인만 가능, 변경 감지로 인원 - 1)
+    @Transactional
+    public void cancel(Long enrollmentId, String username) {
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "신청 내역이 존재하지 않습니다."));
+        if (!enrollment.getMember().getUsername().equals(username)) {
+            throw new AccessDeniedException("본인의 신청만 취소할 수 있습니다.");
+        }
+        Post post = enrollment.getPost();
+        post.setAppliedCount(Math.max(post.getAppliedCount() - 1, 0)); // save() 없이 변경 감지(dirty checking)로 UPDATE
+        enrollmentRepository.delete(enrollment); // DELETE 신청 내역
     }
 }

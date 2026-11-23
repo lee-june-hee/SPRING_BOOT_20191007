@@ -114,17 +114,22 @@ public class BoardController {
         try {
             postService.edit(id, postForm);
             return "redirect:/board/" + id;
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("postId", id);
             return "board/form";
         }
     }
 
-    @PostMapping("/{id}/delete") // 삭제 처리 : POST /board/3/delete
+    // [11주차 연습문제 2] 삭제 처리 : POST /board/3/delete (신청자 있으면 ?deleteError)
+    @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id) {
-        postService.delete(id);
-        return "redirect:/board?deleted"; // 목록 + "삭제되었습니다"
+        try {
+            postService.delete(id);
+            return "redirect:/board?deleted"; // 목록 + "삭제되었습니다"
+        } catch (IllegalStateException e) {
+            return "redirect:/board/" + id + "?deleteError"; // 신청자가 있는 모집글 삭제 막기
+        }
     }
 
 }

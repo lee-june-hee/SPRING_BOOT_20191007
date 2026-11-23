@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.model.domain.Member;
 import com.example.demo.model.dto.MemberForm;
 import com.example.demo.model.repository.CommentRepository;
+import com.example.demo.model.repository.EnrollmentRepository;
 import com.example.demo.model.repository.MemberRepository;
 import com.example.demo.model.repository.PostRepository;
 
@@ -29,6 +30,8 @@ public class MemberService implements UserDetailsService {
     private PostRepository postRepository;
     @Autowired
     private CommentRepository commentRepository;
+    @Autowired // [11주차 연습문제 2] 신청 내역 확인용
+    private EnrollmentRepository enrollmentRepository;
 
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
@@ -114,8 +117,9 @@ public class MemberService implements UserDetailsService {
     public void deleteMember(Long id) { // 회원 삭제
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
-        if (postRepository.existsByAuthor(member) || commentRepository.existsByAuthor(member)) {
-            throw new IllegalArgumentException("작성한 글이나 댓글이 있는 회원은 삭제할 수 없습니다.");
+        if (postRepository.existsByAuthor(member) || commentRepository.existsByAuthor(member)
+                || enrollmentRepository.existsByMember(member)) {
+            throw new IllegalArgumentException("작성한 글이나 댓글, 신청 내역이 있는 회원은 삭제할 수 없습니다.");
         }
 
         // 6주차 연습문제 코드 추가 시작 (관리자 본인 보호)
