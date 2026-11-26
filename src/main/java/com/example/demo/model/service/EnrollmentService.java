@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 // import org.springframework.messaging.simp.SimpMessagingTemplate; // 지우기
-import org.springframework.context.ApplicationEventPublisher; // 추가
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,5 +88,14 @@ public class EnrollmentService {
         Post post = enrollment.getPost();
         post.setAppliedCount(Math.max(post.getAppliedCount() - 1, 0)); // save() 없이 변경 감지(dirty checking)로 UPDATE
         enrollmentRepository.delete(enrollment); // DELETE 신청 내역
+
+        // [12주차 연습문제 1] 취소 실시간 남은 자리 갱신 + 작성자 개인 알림
+        eventPublisher.publishEvent(SeatMessage.from(post));
+        String writer = post.getAuthor().getUsername();
+        if (!writer.equals(username)) {
+            eventPublisher.publishEvent(new Notification(writer,
+                    enrollment.getMember().getName() + "님이 '" + post.getTitle() + "' 신청을 취소했습니다.",
+                    post.getId()));
+        }
     }
 }
